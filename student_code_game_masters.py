@@ -34,7 +34,23 @@ class TowerOfHanoiGame(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### student code goes here
-        pass
+
+        disk_to_number = {"disk1": 1, "disk2": 2, "disk3": 3, "disk4": 4, "disk5": 5}
+        disk_map = lambda disk: int(disk_to_number[disk.bindings_dict["?X"]])
+
+        peg_1 = parse_input("fact: (above ?X peg1)")
+        peg_1_disks = self.kb.kb_ask(peg_1)
+        peg_1_disks = tuple(sorted(map(disk_map, peg_1_disks))) if peg_1_disks else ()
+        
+        peg_2 = parse_input("fact: (above ?X peg2)")
+        peg_2_disks = self.kb.kb_ask(peg_2)
+        peg_2_disks = tuple(sorted(map(disk_map, peg_2_disks))) if peg_2_disks else ()
+
+        peg_3 = parse_input("fact: (above ?X peg3)")
+        peg_3_disks = self.kb.kb_ask(peg_3)
+        peg_3_disks = tuple(sorted(map(disk_map, peg_3_disks))) if peg_3_disks else ()
+
+        return (peg_1_disks, peg_2_disks, peg_3_disks)
 
     def makeMove(self, movable_statement):
         """
@@ -53,7 +69,32 @@ class TowerOfHanoiGame(GameMaster):
             None
         """
         ### Student code goes here
-        pass
+
+        pegs = ["peg1", "peg2", "peg3"]
+
+        disk_to_move = str(movable_statement.terms[0].term)
+        source_peg = str(movable_statement.terms[1].term)
+        dest_peg = str(movable_statement.terms[2].term)
+
+        structure_input = lambda to_join: parse_input(''.join(to_join))
+
+        dest_top = self.kb.kb_ask(structure_input(["fact: (top ?X ", dest_peg, ")"]))
+        if dest_top: 
+            dest_top = dest_top[0].bindings_dict["?X"]
+            self.kb.kb_retract(structure_input(["fact: (top ", dest_top, " ", dest_peg, ")"]))
+            self.kb.kb_assert(structure_input(["fact: (on ", disk_to_move, " ", dest_top, ")"]))
+        else:
+            self.kb.kb_retract(structure_input(["fact: (empty ", dest_peg,")"]))
+            self.kb.kb_assert(structure_input(["fact: (on ", disk_to_move, " ", dest_peg, ")"]))
+
+        self.kb.kb_assert(structure_input(["fact: (top ", disk_to_move, " ", dest_peg, ")"]))
+
+        under_disk_to_move = self.kb.kb_ask(structure_input(["fact: (on ", disk_to_move, " ?X)"]))[0].bindings_dict["?X"]
+        self.kb.kb_retract(structure_input(["fact: (on ", disk_to_move, " ", under_disk_to_move, ")"]))
+        self.kb.kb_retract(structure_input(["fact: (top ", disk_to_move, " ", source_peg, ")"]))
+
+        if under_disk_to_move in pegs: self.kb.kb_assert(structure_input(["fact: (empty ", under_disk_to_move, ")"]))
+        else: self.kb.kb_assert(structure_input(["fact: (top ", under_disk_to_move, " ", source_peg, ")"]))
 
     def reverseMove(self, movable_statement):
         """
@@ -100,7 +141,30 @@ class Puzzle8Game(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### Student code goes here
-        pass
+        tile_names = {"tile1": 1, "tile2": 2, "tile3": 3, "tile4": 4, "tile5": 5, 
+                        "tile6": 6, "tile7": 7, "tile8": 8, "empty": -1}
+        positions = ["pos1", "pos2", "pos3"]
+        tile_positions = {}
+
+        structure_input = lambda to_join: parse_input(''.join(to_join))
+        tile_map = lambda tile: int(tile_names[tile.bindings_dict["?X"]])
+
+        board = []
+
+        for y_pos in positions:
+            row = []
+            for x_pos in positions:
+
+                x_tiles = self.kb.kb_ask(structure_input(["fact: (x ?X ", x_pos ,")"]))
+                y_tiles = self.kb.kb_ask(structure_input(["fact: (y ?X ", y_pos, ")"]))
+                x_tiles = list(map(tile_map, x_tiles))
+                y_tiles = list(map(tile_map, y_tiles))
+
+                tile = list(set(x_tiles) & set(y_tiles))[0]
+                row.append(tile)
+            board.append(tuple(row))
+
+        return tuple(board)
 
     def makeMove(self, movable_statement):
         """
@@ -119,7 +183,24 @@ class Puzzle8Game(GameMaster):
             None
         """
         ### Student code goes here
-        pass
+
+        tile_to_move = str(movable_statement.terms[0].term)
+        start_x = str(movable_statement.terms[1].term)
+        start_y = str(movable_statement.terms[2].term)
+        end_x = str(movable_statement.terms[3].term)
+        end_y = str(movable_statement.terms[4].term)
+
+        structure_input = lambda to_join: parse_input(''.join(to_join))
+        
+        self.kb.kb_retract(structure_input(["fact: (x ", tile_to_move, " ", start_x, ")"]))
+        self.kb.kb_retract(structure_input(["fact: (y ", tile_to_move, " ", start_y, ")"]))
+        self.kb.kb_retract(structure_input(["fact: (x empty ", end_x, ")"]))
+        self.kb.kb_retract(structure_input(["fact: (y empty ", end_y, ")"]))
+
+        self.kb.kb_assert(structure_input(["fact: (x ", tile_to_move, " ", end_x, ")"]))
+        self.kb.kb_assert(structure_input(["fact: (y ", tile_to_move, " ", end_y, ")"]))
+        self.kb.kb_assert(structure_input(["fact: (x empty ", start_x, ")"]))
+        self.kb.kb_assert(structure_input(["fact: (y empty ", start_y, ")"]))
 
     def reverseMove(self, movable_statement):
         """

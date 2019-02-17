@@ -17,3 +17,49 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
+
+fact: (y tile1 pos1)
+fact: (y tile2 pos1)
+fact: (y tile3 pos1)
+fact: (y tile8 pos2)
+fact: (y empty pos2)
+fact: (y tile4 pos2)
+fact: (y tile7 pos3)
+fact: (y tile6 pos3)
+fact: (y tile5 pos3)
+
+fact: (x tile1 pos1)
+fact: (x tile8 pos1)
+fact: (x tile7 pos1)
+fact: (x tile2 pos2)
+fact: (x empty pos2)
+fact: (x tile6 pos2)
+fact: (x tile3 pos3)
+fact: (x tile4 pos3)
+fact: (x tile5 pos3)
+
+fact: (blank empty)
+
+rule: ((x ?a pos2) (y ?a pos1) (x ?b pos1) (y ?b pos1)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos1) (x ?b pos3) (y ?b pos1)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos1) (x ?b pos2) (y ?b pos2)) -> (adjacent ?a ?b)
+
+rule: ((x ?a pos2) (y ?a pos2) (x ?b pos2) (y ?b pos1)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos2) (x ?b pos1) (y ?b pos2)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos2) (x ?b pos2) (y ?b pos3)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos2) (x ?b pos3) (y ?b pos2)) -> (adjacent ?a ?b)
+
+rule: ((x ?a pos2) (y ?a pos3) (x ?b pos1) (y ?b pos3)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos3) (x ?b pos3) (y ?b pos3)) -> (adjacent ?a ?b)
+rule: ((x ?a pos2) (y ?a pos3) (x ?b pos2) (y ?b pos2)) -> (adjacent ?a ?b)
+
+rule: ((x ?a pos1) (y ?a pos2) (x ?b pos1) (y ?b pos1)) -> (adjacent ?a ?b)
+rule: ((x ?a pos1) (y ?a pos2) (x ?b pos1) (y ?b pos3)) -> (adjacent ?a ?b)
+rule: ((x ?a pos1) (y ?a pos2) (x ?b pos2) (y ?b pos2)) -> (adjacent ?a ?b)
+
+rule: ((x ?a pos3) (y ?a pos2) (x ?b pos3) (y ?b pos1)) -> (adjacent ?a ?b)
+rule: ((x ?a pos3) (y ?a pos2) (x ?b pos3) (y ?b pos3)) -> (adjacent ?a ?b)
+rule: ((x ?a pos3) (y ?a pos2) (x ?b pos2) (y ?b pos2)) -> (adjacent ?a ?b)
+
+rule: ((adjacent ?a ?b) (blank ?b) (x ?a ?initialX) (y ?a ?initialY) (x ?b ?finalX) (y ?b ?finalY)) -> (movable ?a ?initialX ?initialY ?finalX ?finalY)
+rule: ((adjacent ?a ?b) (blank ?a) (x ?b ?initialX) (y ?b ?initialY) (x ?a ?finalX) (y ?a ?finalY)) -> (movable ?b ?initialX ?initialY ?finalX ?finalY)
